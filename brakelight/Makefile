@@ -5,11 +5,11 @@
 # (GNU make, BSD make, SysV make)
 
 
-MCU = atmega328p
+MCU = attiny441
 FREQ = 1000000
 FORMAT = ihex
 TARGET = bin/main
-SRC = src/main.c
+SRC = src/main.c src/brakelight.c
 ASRC = 
 OPT = 0
 
