@@ -5,13 +5,13 @@
 # (GNU make, BSD make, SysV make)
 
 
-MCU = attiny441
+MCU = atmega328p
 FREQ = 1000000
 FORMAT = ihex
 TARGET = bin/main
-SRC = src/main.c src/brakelight.c
+SRC = src/main.c src/brakelight.c src/adxl345.c src/TWI_Master.c src/pwmled.c
 ASRC = 
-OPT = 0
+OPT = s
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -105,7 +105,7 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 AVRDUDE_VERBOSE = -v -v -v -v
 
 AVRDUDE_BASIC = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
-AVRDUDE_FUSES = -U lfuse:w:0x62:m -U hfuse:w:0xD9:m -U efuse:w:0x07:m
+AVRDUDE_FUSES = -U lfuse:w:0x62:m -U hfuse:w:0x99:m -U efuse:w:0x07:m
 AVRDUDE_FLAGS = $(AVRDUDE_BASIC) $(AVRDUDE_NO_VERIFY) $(AVRDUDE_VERBOSE) $(AVRDUDE_ERASE_COUNTER)
 
 
