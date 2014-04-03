@@ -40,7 +40,7 @@ TWI_slave_t * curSlave = 0;
  Call this function to set up the TWI master to its initial standby state.
  Remember to enable interrupts from the main application after initializing the TWI.
  ****************************************************************************/
-void TWI_Master_Initialise(void)
+void TWI_Master_Initialize(void)
 {
 	TWBR = TWI_TWBR; // Set bit rate register (Baudrate). Defined in header file.
 // TWSR = TWI_TWPS;                                  // Not used. Driver presumes prescaler to be 00.
@@ -85,6 +85,7 @@ void TWI_Start_Transceiver_With_Data(TWI_slave_t *slave)
 	while (TWI_Transceiver_Busy())
 		;             // Wait until TWI is ready for next transmission.
 
+	curSlave = slave;
 	TWI_msgSize = slave->messageSize; // Number of data to transmit.
 	TWI_buf[0] = slave->messageBuffer[0]; // Store slave address with R/W setting.
 	if (!(slave->messageBuffer[0] & (TRUE << TWI_READ_BIT))) // If it is a write operation, then also copy data.
@@ -171,14 +172,17 @@ ISR(TWI_vect)
 		{
 			switch (curSlave->TWI_Next_Action(curSlave->device))
 			{
-			case STOP:
-				//TWI_statusReg.lastTransOK = TRUE; // Set status bits to completed successfully.
+			case TWI_STOP:
+				TWI_statusReg.lastTransOK = TRUE; // Set status bits to completed successfully.
 				TWCR = (1 << TWEN) |  // TWI Interface enabled
 						(0 << TWIE) | (1 << TWINT) | // Disable TWI Interrupt and clear the flag
 						(0 << TWEA) | (0 << TWSTA) | (1 << TWSTO) | // Initiate a STOP condition.
 						(0 << TWWC);  //
 				break;
-			case REPEAT_START:
+			case TWI_REPEAT_START:
+				TWCR = (1 << TWEN) |  // TWI Interface enabled
+						(0 << TWIE) | (0 << TWINT) | // Disable TWI Interrupt
+						(0 << TWEA) | (0 << TWSTA) | (0 << TWSTO) | (0 << TWWC);
 				TWI_Start_Transceiver_With_Data(curSlave);
 				break;
 			default:
@@ -208,14 +212,17 @@ ISR(TWI_vect)
 		TWI_buf[TWI_bufPtr] = TWDR;
 		switch (curSlave->TWI_Next_Action(curSlave->device))
 		{
-		case STOP:
+		case TWI_STOP:
 			TWI_statusReg.lastTransOK = TRUE; // Set status bits to completed successfully.
 			TWCR = (1 << TWEN) |  // TWI Interface enabled
 					(0 << TWIE) | (1 << TWINT) | // Disable TWI Interrupt and clear the flag
 					(0 << TWEA) | (0 << TWSTA) | (1 << TWSTO) | // Initiate a STOP condition.
 					(0 << TWWC);  //
 			break;
-		case REPEAT_START:
+		case TWI_REPEAT_START:
+			TWCR = (1 << TWEN) |  // TWI Interface enabled
+					(0 << TWIE) | (0 << TWINT) | // Disable TWI Interrupt
+					(0 << TWEA) | (0 << TWSTA) | (0 << TWSTO) | (0 << TWWC);
 			TWI_Start_Transceiver_With_Data(curSlave);
 			break;
 		default:

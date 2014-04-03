@@ -4,14 +4,18 @@
 # is public domain), believed to be neutral to any flavor of "make"
 # (GNU make, BSD make, SysV make)
 
-
 MCU = atmega328p
-FREQ = 1000000
+FREQ = 8000000
 FORMAT = ihex
 TARGET = bin/main
-SRC = src/main.c src/brakelight.c src/adxl345.c src/TWI_Master.c src/pwmled.c
+SRC = src/main.c src/brakelight.c src/adxl345.c src/TWI_Master.c src/pwmled_atmega328p.c src/uart.c
+#src/test_uart.c src/uart.c
+#src/accelTest.c src/adxl345.c src/TWI_Master.c
+
+AVRDUDE_FUSES = -U lfuse:w:0xE2:m -U hfuse:w:0xD9:m -U efuse:w:0x07:m
+
 ASRC = 
-OPT = s
+OPT = 0
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -29,17 +33,16 @@ DEBUG = stabs
 CSTANDARD = -std=gnu99
 
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(FREQ)
+CDEFS = -DF_CPU=$(FREQ) -DDEBUG
 
 # Place -I options here
-CINCS = -I./include
-
+CINCS = -I. -I./include
 
 CDEBUG = -g$(DEBUG) -g2
 CWARN = -Wall -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
-CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
+CFLAGS = $(CSTANDARD) $(CDEBUG) -O$(OPT) $(CWARN) $(CINCS) $(CDEFS) $(CEXTRA)
 
 
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
@@ -105,7 +108,6 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 AVRDUDE_VERBOSE = -v -v -v -v
 
 AVRDUDE_BASIC = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
-AVRDUDE_FUSES = -U lfuse:w:0x62:m -U hfuse:w:0x99:m -U efuse:w:0x07:m
 AVRDUDE_FLAGS = $(AVRDUDE_BASIC) $(AVRDUDE_NO_VERIFY) $(AVRDUDE_VERBOSE) $(AVRDUDE_ERASE_COUNTER)
 
 
@@ -126,7 +128,7 @@ LST = $(ASRC:.S=.lst) $(SRC:.c=.lst)
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
+ALL_CFLAGS = $(CFLAGS) -mmcu=$(MCU)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 

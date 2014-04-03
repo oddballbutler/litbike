@@ -145,7 +145,10 @@
 
 typedef enum
 {
-	IDLE, REQUEST_REG, COLLECT_REG, SET_REG
+	ADXL345_IDLE,
+	ADXL345_REQUEST_REGS,
+	ADXL345_COLLECT_REGS,
+	ADXL345_SET_REG
 } ADXL345_state_t;
 
 typedef union ADXL345_statusReg // Status byte holding flags.
@@ -172,7 +175,9 @@ void adxl345_initialize(ADXL345_t *dev, const uint8_t devAddr);
 void adxl345_setRegister(ADXL345_t *dev, const uint8_t regAddr,
 		const uint8_t data);
 void adxl345_requestRegister(ADXL345_t *dev, const uint8_t regAddr);
-void adxl345_readRegister(ADXL345_t *dev, uint8_t *data);
-bool adxl345_dataReay(const ADXL345_t *dev);
+uint8_t adxl345_readRegister(ADXL345_t *dev, uint8_t *data);
+void adxl345_requestRegisters(ADXL345_t *dev, const uint8_t regAddr, const uint8_t length);
+uint8_t adxl345_readRegisters(ADXL345_t *dev, uint8_t *data, const uint8_t length);
+bool adxl345_dataReady(const ADXL345_t *dev);
 
 #endif /* ADXL345_H_ */

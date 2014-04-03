@@ -26,7 +26,7 @@
 /****************************************************************************
  TWI Status/Control register definitions
  ****************************************************************************/
-#define TWI_BUFFER_SIZE 4   // Set this to the largest message size that will be sent including address byte.
+#define TWI_BUFFER_SIZE 7   // Set this to the largest message size that will be sent including address byte.
 #define TWI_TWBR            0x0C        // TWI Bit rate Register setting.
 // See Application note for detailed
 // information on setting this value.
@@ -51,8 +51,8 @@ extern union TWI_statusReg TWI_statusReg;
 
 typedef enum
 {
-	STOP,
-	REPEAT_START
+	TWI_STOP,
+	TWI_REPEAT_START
 }TWI_Action_t;
 
 typedef struct TWI_slave
@@ -68,12 +68,13 @@ typedef struct TWI_slave
 
 	unsigned char messageBuffer[TWI_BUFFER_SIZE];
 	unsigned char messageSize;
+	unsigned char readSize;
 } TWI_slave_t;
 
 /****************************************************************************
  Function definitions
  ****************************************************************************/
-void TWI_Master_Initialise(void);
+void TWI_Master_Initialize(void);
 unsigned char TWI_Transceiver_Busy(void);
 unsigned char TWI_Get_State_Info(void);
 void TWI_Start_Transceiver_With_Data(TWI_slave_t *);
